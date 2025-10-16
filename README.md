@@ -29,7 +29,7 @@ PrismQ.RepositoryTemplate/
 │   ├── ISSUE_TEMPLATE/        # Issue templates
 │   ├── copilot-instructions.md # Copilot development guidelines
 │   └── PULL_REQUEST_TEMPLATE.md
-├── docs/                       # Documentation
+├── doc/                        # Documentation
 │   ├── CONTRIBUTING.md        # Contribution guidelines
 │   └── README.md              # Documentation overview
 ├── issues/                     # Issue tracking
@@ -108,7 +108,7 @@ PrismQ.RepositoryTemplate/
 
 - **src/** - Keep your main source code here, organized by functionality
 - **tests/** - Mirror the `src/` structure in your tests
-- **docs/** - Add detailed documentation for users and developers
+- **doc/** - Add detailed documentation for users and developers
 - **scripts/** - Add utility scripts for common tasks
 - **issues/** - Track issues and roadmap items
 
@@ -127,17 +127,17 @@ pytest --cov=src --cov-report=html
 
 ## 📚 Documentation
 
-- **[Contributing Guide](docs/CONTRIBUTING.md)** - How to contribute to the project
-- **[PEP Standards](docs/PEP_STANDARDS.md)** - Python Enhancement Proposals we follow
-- **[SOLID Principles](docs/SOLID_PRINCIPLES.md)** - Design principles for maintainable code
-- **[AI Coding Guidelines](docs/AI_CODING_GUIDELINES.md)** - Best practices for AI-assisted development
-- **[Documentation Overview](docs/README.md)** - Documentation structure and guidelines
+- **[Contributing Guide](doc/CONTRIBUTING.md)** - How to contribute to the project
+- **[PEP Standards](doc/PEP_STANDARDS.md)** - Python Enhancement Proposals we follow
+- **[SOLID Principles](doc/SOLID_PRINCIPLES.md)** - Design principles for maintainable code
+- **[AI Coding Guidelines](doc/AI_CODING_GUIDELINES.md)** - Best practices for AI-assisted development
+- **[Documentation Overview](doc/README.md)** - Documentation structure and guidelines
 - **[Known Issues](issues/KNOWN_ISSUES.md)** - Current known issues
 - **[Roadmap](issues/ROADMAP.md)** - Future development plans
 
 ## 🤝 Contributing
 
-This is a proprietary template repository. For contribution guidelines, see [CONTRIBUTING.md](docs/CONTRIBUTING.md).
+This is a proprietary template repository. For contribution guidelines, see [CONTRIBUTING.md](doc/CONTRIBUTING.md).
 
 ## 📋 Features
 
@@ -226,7 +226,7 @@ This repository is proprietary software. See [LICENSE](LICENSE) file for details
 
 For questions, issues, or feature requests:
 1. Check [Known Issues](issues/KNOWN_ISSUES.md)
-2. Review [Documentation](docs/)
+2. Review [Documentation](doc/)
 3. Open a new issue using the appropriate template
 
 ## 🎨 Template Usage

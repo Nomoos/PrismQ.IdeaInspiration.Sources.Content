@@ -469,7 +469,7 @@ Create a batch processing function for image preprocessing that:
 Create a data source adapter that:
 - Implements the PrismQ DataSource protocol
 - Compatible with PrismQ.IdeaInspiration.Sources format
-- Returns data in the standard PrismQ format (see docs/FORMATS.md)
+- Returns data in the standard PrismQ format (see doc/FORMATS.md)
 - Follows dependency injection pattern
 - Uses type hints and Google-style docstrings
 """

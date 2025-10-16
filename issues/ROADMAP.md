@@ -50,7 +50,7 @@ This module is part of the PrismQ ecosystem for AI-powered content generation, s
 
 ## Contributing
 
-See `docs/CONTRIBUTING.md` for how to contribute to these goals.
+See `doc/CONTRIBUTING.md` for how to contribute to these goals.
 
 ## Notes
 
