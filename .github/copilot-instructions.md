@@ -24,7 +24,7 @@ All code should be optimized for:
 - Keep functions focused and under 50 lines when possible
 
 ### SOLID Principles
-Always apply SOLID design principles (see `docs/SOLID_PRINCIPLES.md`):
+Always apply SOLID design principles (see `doc/SOLID_PRINCIPLES.md`):
 - **Single Responsibility**: Each class should have one reason to change
 - **Open/Closed**: Open for extension, closed for modification  
 - **Liskov Substitution**: Subtypes must be substitutable for their base types
@@ -69,7 +69,7 @@ Always apply SOLID design principles (see `docs/SOLID_PRINCIPLES.md`):
 ### Code Organization
 - **src/** - Main source code
 - **tests/** - Unit and integration tests
-- **docs/** - Documentation
+- **doc/** - Documentation
 - **scripts/** - Utility scripts
 - **issues/** - Issue tracking
 
