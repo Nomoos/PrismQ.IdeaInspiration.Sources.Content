@@ -28,6 +28,8 @@ dev = [
 
 [tool.setuptools]
 packages = ["src"]
+# Note: mod/ directory contains business/domain modules (see mod/README.md)
+# These are not packaged as part of the core package but are used as independent modules
 
 [tool.setuptools.package-data]
 src = ["py.typed"]

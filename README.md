@@ -39,6 +39,8 @@ PrismQ.RepositoryTemplate/
 │   ├── KNOWN_ISSUES.md        # Known issues list
 │   ├── ROADMAP.md             # Project roadmap
 │   └── README.md              # Issue tracking guide
+├── mod/                        # Business/domain modules
+│   └── README.md              # Module guidelines
 ├── scripts/                    # Utility scripts
 │   ├── setup.bat              # Windows setup script
 │   ├── quickstart.bat         # Windows quick start
