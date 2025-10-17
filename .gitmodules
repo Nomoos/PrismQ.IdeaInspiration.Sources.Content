@@ -1,4 +1,24 @@
+[submodule "mod/Articles"]
+    path = mod/Articles
+    url = https://github.com/Nomoos/PrismQ.IdeaInspiration.Sources.Content.Articles.git
+    branch = main
+
+[submodule "mod/Forums"]
+    path = mod/Forums
+    url = https://github.com/Nomoos/PrismQ.IdeaInspiration.Sources.Content.Forums.git
+    branch = main
+
+[submodule "mod/Podcasts"]
+    path = mod/Podcasts
+    url = https://github.com/Nomoos/PrismQ.IdeaInspiration.Sources.Content.Podcasts.git
+    branch = main
+
 [submodule "mod/Shorts"]
-	path = mod/Shorts
-	url = https://github.com/Nomoos/PrismQ.IdeaInspiration.Sources.Content.Shorts.git
-	branch = main
+    path = mod/Shorts
+    url = https://github.com/Nomoos/PrismQ.IdeaInspiration.Sources.Content.Shorts.git
+    branch = main
+
+[submodule "mod/Streams"]
+    path = mod/Streams
+    url = https://github.com/Nomoos/PrismQ.IdeaInspiration.Sources.Content.Streams.git
+    branch = main
