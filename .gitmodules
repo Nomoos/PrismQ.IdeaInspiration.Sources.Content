@@ -1,0 +1,4 @@
+[submodule "mod/Shorts"]
+	path = mod/Shorts
+	url = https://github.com/Nomoos/PrismQ.IdeaInspiration.Sources.Content.Shorts.git
+	branch = main
