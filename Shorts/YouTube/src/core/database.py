@@ -7,7 +7,7 @@ by wrapping the new db_utils module that uses DATABASE_URL.
 import sys
 from typing import Optional, List, Dict, Any
 from pathlib import Path
-import db_utils
+from . import db_utils
 
 
 class Database:

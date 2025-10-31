@@ -4,9 +4,11 @@ This directory contains project-level metadata, documentation, and organizationa
 
 ## Structure
 
+- **_scripts/** - Quick start and setup scripts (run.bat, run.sh, setup.bat, setup.sh)
 - **docs/** - Module-level documentation (architecture, contributing, guides)
 - **issues/** - Issue tracking and project management (new, wip, done)
 - **research/** - Research materials, experiments, and exploratory work
+- **tests/** - Module-specific test files and test data
 
 ## Purpose
 

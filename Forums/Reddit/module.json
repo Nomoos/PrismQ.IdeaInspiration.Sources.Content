@@ -1,0 +1,7 @@
+{
+  "name": "RedditSource",
+  "version": "1.0.0",
+  "description": "Reddit source for PrismQ IdeaInspiration - collect idea inspirations from Reddit posts",
+  "type": "content_source",
+  "category": "forums"
+}

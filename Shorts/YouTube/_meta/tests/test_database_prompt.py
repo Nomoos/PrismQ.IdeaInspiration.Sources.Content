@@ -5,7 +5,7 @@ import tempfile
 import os
 from pathlib import Path
 from unittest.mock import patch
-from src.database import Database
+from src.core.database import Database
 
 
 def test_database_creation_prompt_yes():

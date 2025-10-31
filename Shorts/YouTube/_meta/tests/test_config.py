@@ -4,7 +4,7 @@ import pytest
 import tempfile
 import os
 from pathlib import Path
-from src.config import Config
+from src.core.config import Config
 
 
 @pytest.fixture

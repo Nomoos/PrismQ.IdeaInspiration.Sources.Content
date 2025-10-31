@@ -1,0 +1,352 @@
+"""Processor for transforming TikTok data to IdeaInspiration model.
+
+This module provides functionality to transform TikTokSource database
+records into the standardized IdeaInspiration format as defined in
+PrismQ.IdeaInspiration.Model.
+"""
+
+import json
+from typing import Optional, Dict, Any, List
+from datetime import datetime
+
+
+class ContentType:
+    """Type of content source (matching PrismQ.IdeaInspiration.Model)."""
+    TEXT = "text"
+    VIDEO = "video"
+    AUDIO = "audio"
+    UNKNOWN = "unknown"
+
+
+class IdeaInspiration:
+    """Standardized IdeaInspiration model (matching PrismQ.IdeaInspiration.Model).
+    
+    This is a lightweight version for transformation purposes. The full model
+    is defined in PrismQ.IdeaInspiration.Model repository.
+    """
+    
+    def __init__(
+        self,
+        title: str,
+        description: str = "",
+        content: str = "",
+        keywords: Optional[List[str]] = None,
+        source_type: str = ContentType.UNKNOWN,
+        metadata: Optional[Dict[str, str]] = None,
+        source_id: Optional[str] = None,
+        source_url: Optional[str] = None,
+        source_created_by: Optional[str] = None,
+        source_created_at: Optional[str] = None,
+        score: Optional[int] = None,
+        category: Optional[str] = None,
+        subcategory_relevance: Optional[Dict[str, int]] = None,
+        contextual_category_scores: Optional[Dict[str, int]] = None,
+    ):
+        """Initialize IdeaInspiration.
+        
+        Args:
+            title: Content title
+            description: Brief description
+            content: Main text content (subtitles/captions for video)
+            keywords: List of keywords/hashtags
+            source_type: Type of content (text/video/audio)
+            metadata: Additional metadata (string key-value pairs)
+            source_id: Source platform identifier
+            source_url: URL to original content
+            source_created_by: Creator/author
+            source_created_at: Creation timestamp (ISO 8601)
+            score: Numerical score
+            category: Primary category
+            subcategory_relevance: Relevance scores for subcategories
+            contextual_category_scores: Contextual scores by language/region/age/gender
+        """
+        self.title = title
+        self.description = description
+        self.content = content
+        self.keywords = keywords or []
+        self.source_type = source_type
+        self.metadata = metadata or {}
+        self.source_id = source_id
+        self.source_url = source_url
+        self.source_created_by = source_created_by
+        self.source_created_at = source_created_at
+        self.score = score
+        self.category = category
+        self.subcategory_relevance = subcategory_relevance or {}
+        self.contextual_category_scores = contextual_category_scores or {}
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary representation.
+        
+        Returns:
+            Dictionary containing all fields
+        """
+        return {
+            'title': self.title,
+            'description': self.description,
+            'content': self.content,
+            'keywords': self.keywords,
+            'source_type': self.source_type,
+            'metadata': self.metadata,
+            'source_id': self.source_id,
+            'source_url': self.source_url,
+            'source_created_by': self.source_created_by,
+            'source_created_at': self.source_created_at,
+            'score': self.score,
+            'category': self.category,
+            'subcategory_relevance': self.subcategory_relevance,
+            'contextual_category_scores': self.contextual_category_scores,
+        }
+
+
+class IdeaProcessor:
+    """Processor for transforming TikTok data to IdeaInspiration format.
+    
+    This class handles the transformation of TikTokSource database records
+    into the standardized IdeaInspiration model format as specified in
+    PrismQ.IdeaInspiration.Model.
+    """
+    
+    @staticmethod
+    def process(tiktok_record: Any) -> IdeaInspiration:
+        """Transform TikTokSource record to IdeaInspiration.
+        
+        Args:
+            tiktok_record: TikTokSource database record (dict or object)
+            
+        Returns:
+            IdeaInspiration instance
+            
+        Raises:
+            ValueError: If required fields are missing
+        """
+        if not tiktok_record:
+            raise ValueError("Record cannot be None")
+        
+        # Support both dict and object access patterns
+        def get_field(record, field):
+            if isinstance(record, dict):
+                return record.get(field)
+            else:
+                return getattr(record, field, None)
+        
+        title = get_field(tiktok_record, 'title')
+        source_id = get_field(tiktok_record, 'source_id')
+        
+        if not title:
+            raise ValueError("Record must have a title")
+        
+        if not source_id:
+            raise ValueError("Record must have a source_id")
+        
+        # Parse score_dictionary to extract metadata
+        score_dictionary = get_field(tiktok_record, 'score_dictionary')
+        if isinstance(tiktok_record, dict):
+            # For dict, parse JSON if it's a string
+            if isinstance(score_dictionary, str):
+                import json
+                try:
+                    score_dict = json.loads(score_dictionary) if score_dictionary else {}
+                except json.JSONDecodeError:
+                    score_dict = {}
+            else:
+                score_dict = score_dictionary or {}
+        else:
+            # For ORM objects, call get_score_dict method if available
+            if hasattr(tiktok_record, 'get_score_dict'):
+                score_dict = tiktok_record.get_score_dict() or {}
+            else:
+                score_dict = {}
+        
+        # Extract caption/subtitle text from platform_specific
+        content = ""
+        platform_specific = score_dict.get('platform_specific', {})
+        if platform_specific and platform_specific.get('caption'):
+            content = platform_specific['caption']
+        
+        # Extract keywords from tags (comma-separated string or hashtags)
+        keywords = []
+        tags = get_field(tiktok_record, 'tags')
+        if tags:
+            keywords = [tag.strip() for tag in tags.split(',') if tag.strip()]
+        
+        # Build metadata dictionary (string key-value pairs for SQLite compatibility)
+        metadata = IdeaProcessor._build_metadata(tiktok_record, score_dict)
+        
+        # Extract source information
+        source_url = IdeaProcessor._build_source_url(source_id, platform_specific)
+        source_created_by = IdeaProcessor._extract_creator_name(platform_specific)
+        source_created_at = IdeaProcessor._extract_upload_date(platform_specific)
+        
+        # Calculate score (use existing score or convert to int)
+        record_score = get_field(tiktok_record, 'score')
+        score = None
+        if record_score is not None:
+            # Round to nearest integer for IdeaInspiration model
+            score = int(round(record_score))
+        
+        description = get_field(tiktok_record, 'description')
+        
+        return IdeaInspiration(
+            title=title,
+            description=description or "",
+            content=content,
+            keywords=keywords,
+            source_type=ContentType.VIDEO,  # TikTok videos are video content
+            metadata=metadata,
+            source_id=source_id,
+            source_url=source_url,
+            source_created_by=source_created_by,
+            source_created_at=source_created_at,
+            score=score,
+        )
+    
+    @staticmethod
+    def _build_metadata(record: Any, score_dict: Dict[str, Any]) -> Dict[str, str]:
+        """Build metadata dictionary from record and score dictionary.
+        
+        Args:
+            record: TikTokSource record (dict or object)
+            score_dict: Parsed score dictionary
+            
+        Returns:
+            Metadata dictionary (string key-value pairs)
+        """
+        metadata = {}
+        
+        # Extract engagement metrics
+        if score_dict.get('view_count') is not None:
+            metadata['views'] = str(score_dict['view_count'])
+        if score_dict.get('like_count') is not None:
+            metadata['likes'] = str(score_dict['like_count'])
+        if score_dict.get('comment_count') is not None:
+            metadata['comments'] = str(score_dict['comment_count'])
+        if score_dict.get('share_count') is not None:
+            metadata['shares'] = str(score_dict['share_count'])
+        if score_dict.get('save_count') is not None:
+            metadata['saves'] = str(score_dict.get('save_count', 0))
+        
+        # Extract performance metrics
+        if score_dict.get('engagement_rate') is not None:
+            metadata['engagement_rate'] = str(score_dict['engagement_rate'])
+        if score_dict.get('views_per_day') is not None:
+            metadata['views_per_day'] = str(score_dict['views_per_day'])
+        if score_dict.get('views_per_hour') is not None:
+            metadata['views_per_hour'] = str(score_dict['views_per_hour'])
+        
+        # Extract video metadata from platform_specific
+        platform_specific = score_dict.get('platform_specific', {})
+        if platform_specific:
+            if platform_specific.get('duration_seconds') is not None:
+                metadata['duration'] = str(platform_specific['duration_seconds'])
+            if platform_specific.get('music'):
+                metadata['music'] = str(platform_specific['music'])
+            if platform_specific.get('effects'):
+                metadata['effects'] = ','.join(platform_specific['effects']) if isinstance(platform_specific['effects'], list) else str(platform_specific['effects'])
+            if platform_specific.get('author_follower_count') is not None:
+                metadata['creator_followers'] = str(platform_specific['author_follower_count'])
+            if platform_specific.get('author_verification') is not None:
+                metadata['creator_verified'] = str(platform_specific['author_verification'])
+            if platform_specific.get('created_time'):
+                metadata['created_time'] = str(platform_specific['created_time'])
+        
+        # Add platform identifier
+        metadata['platform'] = 'tiktok'
+        metadata['source_type'] = 'video'
+        
+        return metadata
+    
+    @staticmethod
+    def _build_source_url(source_id: str, platform_specific: Dict[str, Any]) -> str:
+        """Build TikTok URL from video ID.
+        
+        Args:
+            source_id: TikTok video ID
+            platform_specific: Platform-specific data
+            
+        Returns:
+            Full TikTok URL
+        """
+        # Try to get URL from platform_specific first
+        if platform_specific and platform_specific.get('video_url'):
+            return platform_specific['video_url']
+        
+        # Fallback to constructing URL (may not always work)
+        return f"https://www.tiktok.com/@user/video/{source_id}"
+    
+    @staticmethod
+    def _extract_creator_name(platform_specific: Dict[str, Any]) -> Optional[str]:
+        """Extract creator name from platform data.
+        
+        Args:
+            platform_specific: Platform-specific data
+            
+        Returns:
+            Creator username or None
+        """
+        if not platform_specific:
+            return None
+        
+        # Try different possible fields
+        if platform_specific.get('username'):
+            return platform_specific['username']
+        if platform_specific.get('creator_username'):
+            return platform_specific['creator_username']
+        if platform_specific.get('author'):
+            return platform_specific['author']
+        
+        return None
+    
+    @staticmethod
+    def _extract_upload_date(platform_specific: Dict[str, Any]) -> Optional[str]:
+        """Extract and format upload date from platform data.
+        
+        Args:
+            platform_specific: Platform-specific data
+            
+        Returns:
+            ISO 8601 formatted date string or None
+        """
+        if not platform_specific:
+            return None
+        
+        created_time = platform_specific.get('created_time') or platform_specific.get('createTime')
+        
+        if not created_time:
+            return None
+        
+        # Try to parse and convert to ISO 8601 format
+        try:
+            if isinstance(created_time, int):
+                # Unix timestamp
+                dt = datetime.fromtimestamp(created_time)
+                return dt.isoformat()
+            elif isinstance(created_time, str):
+                # Assume it's already in ISO 8601 or similar format
+                return created_time
+        except (ValueError, TypeError):
+            # If parsing fails, return as-is
+            return str(created_time)
+        
+        return None
+    
+    @staticmethod
+    def process_batch(records: List[Any]) -> List[IdeaInspiration]:
+        """Process multiple TikTok records in batch.
+        
+        Args:
+            records: List of TikTokSource records
+            
+        Returns:
+            List of IdeaInspiration instances
+        """
+        results = []
+        for record in records:
+            try:
+                idea = IdeaProcessor.process(record)
+                results.append(idea)
+            except ValueError as e:
+                # Log error but continue processing
+                print(f"Warning: Failed to process record: {e}")
+                continue
+        return results

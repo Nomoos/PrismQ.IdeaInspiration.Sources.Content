@@ -3,7 +3,7 @@
 import pytest
 import tempfile
 import os
-from src.database import Database
+from src.core.database import Database
 
 
 @pytest.fixture

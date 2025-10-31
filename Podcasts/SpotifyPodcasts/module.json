@@ -1,0 +1,29 @@
+{
+  "name": "SpotifyPodcasts",
+  "version": "1.0.0",
+  "description": "Spotify Podcasts source module for PrismQ.IdeaInspiration",
+  "type": "source",
+  "platform": "spotify",
+  "content_type": "podcasts",
+  "author": "PrismQ",
+  "license": "Proprietary",
+  "dependencies": {
+    "spotipy": ">=2.23.0",
+    "sqlalchemy": ">=2.0.0",
+    "click": ">=8.1.7"
+  },
+  "entry_point": "src.cli:main",
+  "capabilities": [
+    "scrape_trending",
+    "scrape_category",
+    "scrape_show",
+    "metadata_extraction",
+    "deduplication"
+  ],
+  "target_platform": {
+    "os": "Windows",
+    "gpu": "NVIDIA RTX 5090",
+    "cpu": "AMD Ryzen",
+    "ram": "64GB DDR5"
+  }
+}

@@ -1,9 +1,10 @@
 """YouTube source plugin for scraping idea inspirations from Shorts."""
 
 from typing import List, Dict, Any
+import json
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from . import SourcePlugin
+from . import SourcePlugin, IdeaInspiration
 
 
 class YouTubePlugin(SourcePlugin):
@@ -31,11 +32,11 @@ class YouTubePlugin(SourcePlugin):
         """
         return "youtube"
 
-    def scrape(self) -> List[Dict[str, Any]]:
+    def scrape(self) -> List[IdeaInspiration]:
         """Scrape ideas from YouTube Shorts.
         
         Returns:
-            List of idea dictionaries
+            List of IdeaInspiration objects
         """
         ideas = []
         
@@ -71,13 +72,34 @@ class YouTubePlugin(SourcePlugin):
                 snippet = video['snippet']
                 statistics = video['statistics']
                 
-                idea = {
-                    'source_id': video['id'],
-                    'title': snippet['title'],
-                    'description': snippet.get('description', ''),
-                    'tags': self._extract_tags(snippet),
-                    'metrics': video  # Pass the full video data for UniversalMetrics
+                # Extract tags
+                tags = self._extract_tags(snippet)
+                
+                # Build metadata dictionary with string values for SQLite compatibility
+                metadata = {
+                    'video_id': video['id'],
+                    'channel_id': snippet.get('channelId', ''),
+                    'channel_title': snippet.get('channelTitle', ''),
+                    'published_at': snippet.get('publishedAt', ''),
+                    'duration': duration,
+                    'view_count': str(statistics.get('viewCount', 0)),
+                    'like_count': str(statistics.get('likeCount', 0)),
+                    'comment_count': str(statistics.get('commentCount', 0)),
+                    'category_id': snippet.get('categoryId', ''),
                 }
+                
+                # Create IdeaInspiration using from_video factory method
+                idea = IdeaInspiration.from_video(
+                    title=snippet['title'],
+                    description=snippet.get('description', ''),
+                    subtitle_text='',  # YouTube API doesn't provide captions directly
+                    keywords=tags,
+                    metadata=metadata,
+                    source_id=video['id'],
+                    source_url=f"https://www.youtube.com/watch?v={video['id']}",
+                    source_created_by=snippet.get('channelTitle', ''),
+                    source_created_at=snippet.get('publishedAt', '')
+                )
                 ideas.append(idea)
                 
         except HttpError as e:
@@ -87,14 +109,14 @@ class YouTubePlugin(SourcePlugin):
         
         return ideas
 
-    def _extract_tags(self, snippet: Dict[str, Any]) -> str:
+    def _extract_tags(self, snippet: Dict[str, Any]) -> List[str]:
         """Extract tags from YouTube video snippet.
         
         Args:
             snippet: Video snippet from YouTube API
             
         Returns:
-            Comma-separated tag string
+            List of tag strings
         """
         tags = ['youtube_shorts']
         

@@ -1,0 +1,7 @@
+{
+  "name": "HackerNewsSource",
+  "version": "1.0.0",
+  "description": "HackerNews source for PrismQ IdeaInspiration - collect idea inspirations from HackerNews posts",
+  "type": "content_source",
+  "category": "forums"
+}
